@@ -1,0 +1,39 @@
+{
+  "name": "Root",
+  "children": [
+    {
+      "name": "Node A"
+
+    },
+    {
+      "name": "Node B",
+      "children": [
+        { "name": "Node B1" },
+        { "name": "Node B2" }
+
+      ]
+    },
+    {
+      "name": "Node C",
+      "children": [
+        {
+          "name": "Node C1"
+        },
+        { "name": "Node C2" }
+      ]
+    },
+    {
+      "name": "Node D",
+      "children": [
+        {
+          "name": "Node D1",
+          "children": [
+            { "name": "Node D1a" },
+            { "name": "Node D1b" },
+            { "name": "Node D1c" }
+          ]
+        }
+      ]
+    }
+  ]
+}
