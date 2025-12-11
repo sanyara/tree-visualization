@@ -12,11 +12,21 @@ export default class Scene {
 
     this.aspect = container.clientWidth / container.clientHeight;
 
+    let cameraWidth, cameraHeight;
+
+    if (this.aspect >= 1) {
+      cameraWidth = this.frustumSize * this.aspect;
+      cameraHeight = this.frustumSize;
+    } else {
+      cameraWidth = this.frustumSize;
+      cameraHeight = this.frustumSize / this.aspect;
+    }
+
     this.camera = new THREE.OrthographicCamera(
-      (-this.frustumSize * this.aspect) / 2,
-      (this.frustumSize * this.aspect) / 2,
-      this.frustumSize / 2,
-      -this.frustumSize / 2,
+      -cameraWidth / 2,
+      cameraWidth / 2,
+      cameraHeight / 2,
+      -cameraHeight / 2,
       0.1,
       1000
     );
@@ -34,7 +44,6 @@ export default class Scene {
     this.controls.dampingFactor = 0.05;
 
     this.addLight();
-    // this.addGround();
 
     this.animate = this.animate.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -50,19 +59,25 @@ export default class Scene {
 
     if (containerWidth === 0 || containerHeight === 0) return;
 
-    const aspect = this.aspect;
+    this.aspect = containerWidth / containerHeight;
 
-    let newWidth, newHeight;
+    let cameraWidth, cameraHeight;
 
-    if (containerWidth / containerHeight > aspect) {
-      newHeight = containerHeight;
-      newWidth = newHeight * aspect;
+    if (this.aspect >= 1) {
+      cameraWidth = this.frustumSize * this.aspect;
+      cameraHeight = this.frustumSize;
     } else {
-      newWidth = containerWidth;
-      newHeight = newWidth / aspect;
+      cameraWidth = this.frustumSize;
+      cameraHeight = this.frustumSize / this.aspect;
     }
 
-    this.renderer.setSize(newWidth, newHeight);
+    this.camera.left = -cameraWidth / 2;
+    this.camera.right = cameraWidth / 2;
+    this.camera.top = cameraHeight / 2;
+    this.camera.bottom = -cameraHeight / 2;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(containerWidth, containerHeight);
   }
 
   add(object) {
@@ -95,14 +110,21 @@ export default class Scene {
     this.controls.target.copy(center);
     this.controls.update();
 
-    const maxDim = Math.max(size.x, size.y);
+    const maxDim = Math.max(size.x, size.y) + 1;
 
     this.frustumSize = maxDim;
 
-    this.camera.left = (-this.frustumSize * this.aspect) / 2;
-    this.camera.right = (this.frustumSize * this.aspect) / 2;
-    this.camera.top = this.frustumSize / 2;
-    this.camera.bottom = -this.frustumSize / 2;
+    if (this.aspect >= 1) {
+      this.camera.left = (-this.frustumSize * this.aspect) / 2;
+      this.camera.right = (this.frustumSize * this.aspect) / 2;
+      this.camera.top = this.frustumSize / 2;
+      this.camera.bottom = -this.frustumSize / 2;
+    } else {
+      this.camera.left = -this.frustumSize / 2;
+      this.camera.right = this.frustumSize / 2;
+      this.camera.top = this.frustumSize / this.aspect / 2;
+      this.camera.bottom = -(this.frustumSize / this.aspect) / 2;
+    }
 
     this.camera.lookAt(center);
     this.camera.updateProjectionMatrix();
